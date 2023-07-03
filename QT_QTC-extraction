@@ -1,0 +1,70 @@
+import re
+
+rep='the QT/C is 453/345 this morning and  cQTc is normal after 345mg of dofidile, which is 0.4534 and QT average is 453 .QTC/QT now is 428/455.at 02/34/32, ekg was taken report shows QTC447'
+#rep='the QT/QTC is 234/468 this morning and '
+rep ="""the EKG was done, QTc is manually Computed. the patient was
+asked to come back in two weeks until then 787 is observed"""
+
+rep=re.sub(r'cqtc|qt corr|c?qt-c|cqt|qtc','QTC',rep, flags=re.I)
+rep=re.sub(r'(QTC?)(\d+)', r'\1 \2', rep, flags=re.I)
+rep=re.sub(r'(QT/c)', 'QT/QTC', rep, flags=re.I)
+print(rep)
+
+#QtDDqtcDD='(\d{3}/\d{3})|(0?[.]\d{2,3}/0?[.]\d{2,3})'
+#qtqtcDD='\d{3}|(0?[.]\d{2,3})(?!mcg|mg)'
+
+pat1=re.compile(r'(QT/QTC.*?\b)(\d{3}/\d{3}|QTC|QT|0?[.]\d{2,3}/0?[.]\d{2,3})\b', flags=re.S|re.I)
+pat2=re.compile(r'(QTC/QT[^C].*?\b)(\d{3}/\d{3}|QTC|QT|0?[.]\d{2,3}/0?[.]\d{2,3})\b', flags=re.S|re.I)
+pat3=re.compile(r'(^QT\s.*?\b)(QTC|QT|\d{3}|0?[.]\d{2,3})(?!mcg|mg)\b', flags=re.S|re.I)
+pat4=re.compile(r'(^QTC\s.*?\b)(QTC|QT|\d{3}|0?[.]\d{2,3})(?!mcg|mg)\b', flags=re.S|re.I)
+
+def patmapping(parm, pos, string):
+    end=pos+100 #len(string)
+    if parm == 'QT/QTC':
+        p1=re.search(pat1,string[pos:end])
+        if p1:
+            meas=re.search(r'\b\d{3}/\d{3}\b',p1.group(0))
+            if meas:
+                return ('QT/QTC', p1.group(0), meas.group(0))
+            return ('QT/QTC',p1.group(),None)
+            
+    elif parm == 'QTC/QT':
+        p2=re.search(pat2,string[pos:end])
+        if p2:
+            meas=re.search(r'\b\d{3}/\d{3}\b',p2.group(0))
+            if meas:
+                return ('QTC/QT',p2.group(0), meas.group(0))
+            return ('QTC/QT',p2.group(0),None)
+
+    elif parm == 'QT':
+        p3=re.search(pat3,string[pos:end])
+        if p3:
+            meas=re.search(r'\b(\d{3}|\d{3}|0?[.]\d{2,3})(?!mcg|mg)\b',p3.group(0))
+            if meas:
+                return ('QT',p3.group(0), meas.group(0))
+            return ('QT',p3.group(0),None)
+
+    elif parm == 'QTC':
+        p4=re.search(pat4,string[pos:end])
+        if p4:
+            meas=re.search(r'\b(\d{3}|\d{3}|0?[.]\d{2,3})(?!mcg|mg)\b',p4.group(0))
+            if meas:
+                return ('QTC',p4.group(0), meas.group(0))
+            return ('QTC', p4.group(0),None)
+            
+ekgpat=re.compile(r'\bQTC/QT\b|\bQT/QTC\b|\bQTC\b|\bQT\b', flags=re.I)
+#oc=re.findall(ekgpat,rep)
+
+found=[]
+for match  in re.finditer(ekgpat,rep):
+    found.append((match.start(),match.group()))
+print(found)
+
+if found:
+    for x in found:
+        pos,ptype = x
+        print(pos,ptype)
+        print(patmapping(ptype, pos, rep))
+        #print(rep[pos:])
+else:
+    print('No match Found')
