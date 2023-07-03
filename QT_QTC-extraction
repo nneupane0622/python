@@ -15,8 +15,8 @@ print(rep)
 
 pat1=re.compile(r'(QT/QTC.*?\b)(\d{3}/\d{3}|QTC|QT|0?[.]\d{2,3}/0?[.]\d{2,3})\b', flags=re.S|re.I)
 pat2=re.compile(r'(QTC/QT[^C].*?\b)(\d{3}/\d{3}|QTC|QT|0?[.]\d{2,3}/0?[.]\d{2,3})\b', flags=re.S|re.I)
-pat3=re.compile(r'(^QT\s.*?\b)(QTC|QT|\d{3}|0?[.]\d{2,3})(?!mcg|mg)\b', flags=re.S|re.I)
-pat4=re.compile(r'(^QTC\s.*?\b)(QTC|QT|\d{3}|0?[.]\d{2,3})(?!mcg|mg)\b', flags=re.S|re.I)
+pat3=re.compile(r'(^QT(?!/)\b.*?\b)(QTC|QT|\d{3}|0?[.]\d{2,3})(?!mcg|mg)\b', flags=re.S|re.I)
+pat4=re.compile(r'(^QTC(?!/)\b.*?\b)(QTC|QT|\d{3}|0?[.]\d{2,3})(?!mcg|mg)\b', flags=re.S|re.I)
 
 def patmapping(parm, pos, string):
     end=pos+100 #len(string)
